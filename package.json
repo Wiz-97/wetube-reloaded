@@ -1,0 +1,30 @@
+{
+  "name": "wetube",
+  "version": "1.0.0",
+  "description": "clone coding YouTube",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wiz-97/wetube-reloaded.git"
+  },
+  "scripts": {
+    "dev": "nodemon --exec babel-node src/init.js"
+  },
+  "author": "이훈복",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Wiz-97/wetube-reloaded/issues"
+  },
+  "homepage": "https://github.com/Wiz-97/wetube-reloaded#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.3",
+    "morgan": "^1.10.0",
+    "pug": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.3",
+    "@babel/node": "^7.20.7",
+    "@babel/preset-env": "^7.20.2",
+    "nodemon": "^2.0.21"
+  }
+}

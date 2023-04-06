@@ -1,0 +1,9 @@
+extends base
+include mixins/video
+
+block content 
+    ul 
+        each potato in videos
+            +video(potato)    
+        else 
+            li Sorry, nothing was found. Total emptiness
