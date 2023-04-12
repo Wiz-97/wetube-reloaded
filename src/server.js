@@ -4,7 +4,7 @@ import morgan from "morgan";
 import globalRouter from "./routers/rootRouter";
 import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/videoRouter";
-import { localsMiddleware } from "./middleware";
+import { localsMiddleware } from "./middlewares";
 import MongoStore from "connect-mongo";
 
 const app = express();
