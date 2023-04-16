@@ -1,9 +1,10 @@
 import fetch from "cross-fetch";
 import User from "../models/User";
 import bcrypt from "bcrypt";
+import Video from "../models/Video";
 
 export const getJoin = (req, res) => {
-  res.render("createAccount", { pageTitle: "Create Account" });
+  res.render("join", { pageTitle: "Create Account" });
 };
 
 export const postJoin = async (req, res) => {
@@ -99,8 +100,15 @@ export const finishGithubLogin = async (req, res) => {
   if ("access_token" in tokenRequest) {
     // access api
     const { access_token } = tokenRequest;
-    const apiURL = "http://api.github.com";
+    const apiURL = "https://api.github.com";
     const userData = await (
+      await fetch(`${apiURL}/user`, {
+        headers: {
+          Authorization: `token ${access_token}`,
+        },
+      })
+    ).json();
+    const emailData = await (
       await fetch(`${apiURL}/user/emails`, {
         headers: {
           Authorization: `token ${access_token}`,
@@ -124,33 +132,109 @@ export const finishGithubLogin = async (req, res) => {
         socialOnly: true,
         location: userData.location,
       });
-      req.session.loggedIn = true;
-      req.session.user = user;
-      return res.redirect("/");
     }
+    req.session.loggedIn = true;
+    req.session.user = user;
+    return res.redirect("/");
   } else {
     return res.redirect("/login");
   }
 };
+
 export const logout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");
 };
+
 export const getEdit = (req, res) => {
   return res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
+
 export const postEdit = async (req, res) => {
+  const {
+    session: {
+      user: { _id, email: sessionEmail, username: sessionUsername, avatarUrl },
+    },
+    body: { name, email, username, location },
+    file,
+  } = req;
+  const usernameExists =
+    username != sessionUsername ? await User.exists({ username }) : undefined;
+  const emailExists =
+    email != sessionEmail ? await User.exists({ email }) : undefined;
+  if (usernameExists || emailExists) {
+    return res.status(400).render("edit-profile", {
+      pageTitle: "Edit Profile",
+      usernameErrorMessage: usernameExists ? "중복된 유저명입니다." : 0,
+      emailErrorMessage: emailExists ? "중복된 이메일입니다." : 0,
+    });
+  }
+  const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    {
+      avatarUrl: file ? file.path : avatarUrl,
+      // file이 존재 시 -> 사용자가 file을 업로드 했다는 뜻
+      // 존재하지 않을 시 -> 변경하지 않음 -> 기존 session의 avatarUrl 사용
+      name,
+      email,
+      username,
+      location,
+    },
+    { new: true }
+  );
+  req.session.user = updatedUser;
+  return res.redirect("/users/edit");
+};
+
+export const getChangePassword = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    return res.redirect("/");
+  }
+  return res.render("users/change-password", { pageTitle: "비밀번호 변경" });
+};
+
+export const postChangePassword = async (req, res) => {
   const {
     session: {
       user: { _id },
     },
-    body: { name, email, username, location },
+    body: { oldPassword, newPassword, newPasswordConfirm },
   } = req;
-  await User.findByIdAndUpdate(_id, {
-    name,
-    email,
-    username,
-    location,
+  const user = await User.findById(_id);
+  const ok = await bcrypt.compare(oldPassword, user.password);
+  // session에서 password를 가져오지 않고 매번 user.password를 이용해 DB에 저장된 가장 최근의 비밀번호와 비교
+  // => session을 update 해주는 행위를 안 해줘도 됨
+  if (!ok) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "비밀번호 변경",
+      errorMessage: "현재 비밀번호가 틀립니다.",
+    });
+  }
+  if (newPassword != newPasswordConfirm) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "비밀번호 변경",
+      errorMessage: "새로운 비밀번호가 일치하지 않습니다.",
+    });
+  }
+  user.password = newPassword;
+  await user.save();
+  return res.redirect("/users/logout");
+};
+
+export const see = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).populate({
+    path: "videos",
+    populate: {
+      path: "owner",
+      model: "User",
+    },
+  });
+  if (!user) {
+    return res.status(404).render("404", { pageTitle: "User not found" });
+  }
+  return res.render("users/profile", {
+    pageTitle: user.name,
+    user,
   });
 };
-export const see = (req, res) => res.send("See User");

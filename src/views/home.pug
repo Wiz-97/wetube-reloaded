@@ -2,8 +2,8 @@ extends base
 include mixins/video
 
 block content 
-    ul 
-        each potato in videos
-            +video(potato)    
+    div.video-grid
+        each video in videos
+            +video(video)    
         else 
-            li Sorry, nothing was found. Total emptiness
+            span.empty__message 동영상이 없습니다

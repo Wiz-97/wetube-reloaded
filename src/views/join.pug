@@ -5,14 +5,20 @@ block content
     if errorMessage 
         span=errorMessage 
     form(method="POST")
+        label 이름
         input(placeholder="Name", name="name", type="text", required)
+        label 이메일
         input(placeholder="Email", name="email", type="email", required)
+        label 사용자 이름
         input(placeholder="Username", name="username", type="text", required)
+        label 비밀번호
         input(placeholder="Password", name="password", type="password", required)
+        label 비밀번호 확인
         input(placeholder="Confirm Password", name="password2", type="password", required)
+        label 장소
         input(placeholder="Location", name="location", type="text")
         input(type="submit", value="Join")
-    hr
-    div 
+        include partials/social-login
+    div.auth-switch
         span Already have an account?
         a(href="/login") Log in now &rarr;
