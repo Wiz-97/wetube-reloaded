@@ -104,6 +104,11 @@ const changeVideoTime = (seconds) => {
   video.currentTime += seconds;
 };
 
+const handleEnded = (e) => {
+  const { id } = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, { method: "POST" });
+};
+
 document.addEventListener("keyup", (event) => {
   if (event.code === "Space") {
     handlePlayClick();
@@ -119,10 +124,11 @@ document.addEventListener("keyup", (event) => {
 playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMuteClick);
 volumeRange.addEventListener("input", handleVolumeChange);
-video.addEventListener("loadeddata", handleLoadedMetadata);
+video.addEventListener("loadedmetadata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate);
 videoContainer.addEventListener("mousemove", handleMouseMove);
 videoContainer.addEventListener("mouseleave", handleMouseLeave);
 timeline.addEventListener("input", handleTimelineChange);
 fullScreenBtn.addEventListener("click", handleFullscreen);
 video.addEventListener("click", handlePlayClick);
+video.addEventListener("ended", handleEnded);
