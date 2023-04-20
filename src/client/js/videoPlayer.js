@@ -112,6 +112,7 @@ const handleEnded = (e) => {
 document.addEventListener("keyup", (event) => {
   if (event.code === "Space") {
     handlePlayClick();
+    event.preventDefault();
   }
   if (event.code === "ArrowRight") {
     changeVideoTime(5);

@@ -142,6 +142,7 @@ export const finishGithubLogin = async (req, res) => {
 };
 
 export const logout = (req, res) => {
+  req.flash("info", "Logged Out");
   req.session.destroy();
   return res.redirect("/");
 };
@@ -188,6 +189,7 @@ export const postEdit = async (req, res) => {
 
 export const getChangePassword = (req, res) => {
   if (req.session.user.socialOnly === true) {
+    req.flash("error", "비밀번호 변경 불가");
     return res.redirect("/");
   }
   return res.render("users/change-password", { pageTitle: "비밀번호 변경" });
@@ -218,6 +220,7 @@ export const postChangePassword = async (req, res) => {
   }
   user.password = newPassword;
   await user.save();
+  req.flash("info", "비밀번호 변경 완료");
   return res.redirect("/users/logout");
 };
 
