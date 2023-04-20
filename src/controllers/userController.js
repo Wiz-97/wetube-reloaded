@@ -173,7 +173,7 @@ export const postEdit = async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
-      avatarUrl: file ? file.path : avatarUrl,
+      avatarUrl: file ? file.location : avatarUrl,
       // file이 존재 시 -> 사용자가 file을 업로드 했다는 뜻
       // 존재하지 않을 시 -> 변경하지 않음 -> 기존 session의 avatarUrl 사용
       name,
