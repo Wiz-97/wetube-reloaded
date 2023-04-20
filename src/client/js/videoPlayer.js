@@ -109,10 +109,10 @@ const handleEnded = (e) => {
   fetch(`/api/videos/${id}/view`, { method: "POST" });
 };
 
-document.addEventListener("keyup", (event) => {
+document.addEventListener("keydown", (event) => {
   if (event.code === "Space") {
-    handlePlayClick();
     event.preventDefault();
+    handlePlayClick();
   }
   if (event.code === "ArrowRight") {
     changeVideoTime(5);
